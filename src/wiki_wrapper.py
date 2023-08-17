@@ -12,53 +12,28 @@ Project Assumptions
 Notes:
 - Article name is case sensitive. Barack Obama, Barack obama, barack obama will all return different results
 '''
+import sys
+import os
+# Add the project root to the system path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import requests
 from datetime import datetime, timedelta
-
-
-class NoDataException(Exception):
-    "Raised when there are no data or the data has not been loaded yet"
-    pass
-
-
-class ThrottlingException(Exception):
-    "Raised when the client has made too many requests and it is being throttled"
-    pass
+from src.errors import NoDataException, ThrottlingException
 
 
 class WikiWrapper:
     def __init__(self):
         self.user_agent_headers = {'User-Agent': 'CoolBot/0.0 (https://example.org/coolbot/; coolbot@example.org)'}
         self.per_article_url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/{article}/daily/{start_date}/{end_date}"
-        self.top_url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikisource/all-access/{year}/{month:02d}/{day:02d}"
+        self.top_url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikisource/all-access/{year}/{month:02d}/{day}"
 
-    def get_list_of_most_viewed_articles(self, granularity: str, year: int, month: int, day: int=1, limit: int=10):
+    def get_list_of_most_viewed_articles_week(self, year: int, month: int, day: int=1, limit: int=10):
         self.__validate_dates(year, month, day)
-        if granularity.lower() not in ["week", "month"]:
-            raise Exception("Granularity input is incorrect. Only 'week' or 'month' values are accepted.")
-        # TODO: have each return their own dataset
-        if granularity.lower() == "month":
-            data = self.__get_most_viewed_month(year, month)
-            top_articles = [d.get("article") for d in data]
-            return top_articles[:limit]
-        elif granularity.lower() == "week":
-            start_date = datetime(year, month, day)
-            data = self.__get_most_viewed_week(start_date)
-            # return
+        start_date = datetime(year, month, day)
 
-    def __get_most_viewed_month(self, year, month):
-        url = self.top_url.format(year=year,
-                                  month=month,
-                                  day='all-days')
-        request = self.__get_api_results(url)
-        most_viewed_month = request[0].get("articles")
-        return most_viewed_month
-
-    def __get_most_viewed_week(self, start_date):
         most_viewed_week = {}
-        date = start_date
-
         for _ in range(7):
+            # TODO: replace day=date.day with something like 'day='{:02d}'.format(date.day)'
             url = self.top_url.format(year=date.year,
                                       month=date.month,
                                       day=date.day)
@@ -76,9 +51,26 @@ class WikiWrapper:
 
             date = date + timedelta(days=1)
 
+        # TODO: check limit
         # TODO: need to combine duplicate results into one entry then sort
         sorted_items = dict(sorted(most_viewed_week.items(), key=lambda item: item[1], reverse=True))
         return sorted_items
+
+    def get_list_of_most_viewed_articles_month(self, year: int, month: int, limit: int=10):
+        self.__validate_dates(year, month)
+
+        url = self.top_url.format(year=year,
+                                  month=month,
+                                  day='all-days')
+        request = self.__get_api_results(url)
+        most_viewed_month = request[0].get("articles")
+
+        # limit is to cover responses that are less than the specified limit, which
+        # could go out of bounds and throw an error
+        limit = limit if limit < len(most_viewed_month) else len(most_viewed_month)
+        top_articles = [most_viewed_month[i].get("article") for i in range(limit)]
+
+        return top_articles
 
     def get_view_count_of_article(self, article_name: str, granularity: str, year: int, month: int, day: int=1) -> int:
         self.__validate_dates(year, month, day)
@@ -162,4 +154,4 @@ class WikiWrapper:
 
 # driver code (remove in final code)
 ww = WikiWrapper()
-print(ww.get_article_date_with_most_views("Albert Einstein"))
+print(ww.get_list_of_most_viewed_articles_month(2021, 9))
