@@ -5,6 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 from datetime import datetime
 from src.wiki_wrapper import WikiWrapper, NoDataException
+from src.errors import NoDataException
 
 
 class TestWikiWrapper:
@@ -18,6 +19,23 @@ class TestWikiWrapper:
     year = 2016
     month = 10
     day = 10
+
+    def test_get_list_of_most_viewed_articles_month_successful(self):
+        result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month)
+        assert result == ['Main_Page', 'Special:Search', 'Special:CreateAccount', 'Special:Book', 'Dictionary_of_spoken_Spanish', 'The_Grammar_of_English_Grammars/Part_II', 'Moral_letters_to_Lucilius', 'Zodiac_Killer_letters', 'Lorem_ipsum', 'The_Grammar_of_English_Grammars/Part_III']
+
+    def test_get_list_of_most_viewed_articles_week_successful(self):
+        ...
+
+    def test_get_list_of_most_viewed_articles_limit(self):
+        result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month, 10)
+        assert len(result) == 10
+
+        result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month, 100)
+        assert len(result) == 100
+
+        result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month, 1000)
+        assert len(result) <= 1000  # response returns a length of 994
 
     def test_get_view_count_of_article_for_week_successful(self):
         result = self.instance.get_view_count_of_article(self.article_name, self.granularity_week, self.year, self.month, self.day)
