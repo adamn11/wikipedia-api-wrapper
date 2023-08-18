@@ -46,3 +46,8 @@ wiki.get_article_date_with_most_views("Albert Einstein")
 ```
 
 Should return a datetime of `2018-03-14 00:00:00`
+
+## Endpoint Documentation
+[Link to Docs](https://github.com/adamn11/wikipedia-api-wrapper/blob/main/docs/endpoints.md)
+
+
