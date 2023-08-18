@@ -15,6 +15,12 @@ You can install this package by using pip
 
 `pip install -i https://test.pypi.org/simple/ wiki-wrapper-adamn11==1.3`
 
+## Troubleshooting
+If you run into an error that says "module 'collections' has no attribute 'MutableMapping'", you have to update the requests package by running
+```
+pip install requests --upgrade
+```
+
 ## Getting Started
 To start using this package, you need to import wiki-api-wrapper and then instantiate an instance of `WikiWrapper()`
 ```
