@@ -5,7 +5,7 @@
 2. [Get View Count of Article](#get-view-count-of-article)
 3. [Get List of Most Viewed Articles for a Month](#get-list-of-most-viewed-articles-for-a-month)
 4. [Get List of Most Viewed Articles for a Week](#get-list-of-most-viewed-articles-for-a-week)
-5. [Error Handling](#error-handling)
+5. [Status Codes](#status-codes)
 
 ## Get Article Date With Most Views
 
