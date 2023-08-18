@@ -13,7 +13,7 @@ This is a wrapper around Wikipedia's PageView API with the following endpoints:
 ## Installation
 You can install this package by using pip
 
-`pip install -i https://test.pypi.org/simple/ wiki-wrapper-adamn11==1.5`
+`pip install -i https://test.pypi.org/simple/ wiki-wrapper-adamn11`
 
 ## Troubleshooting
 If you run into an error that says "module 'collections' has no attribute 'MutableMapping'", you have to update the requests package by running
