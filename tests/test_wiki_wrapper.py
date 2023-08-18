@@ -4,8 +4,8 @@ import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import pytest
 from datetime import datetime
-from src.wiki_wrapper import WikiWrapper, NoDataException
-from src.errors import NoDataException
+from src.wiki_wrapper_adamn11.wiki_wrapper import WikiWrapper, NoDataException
+from src.wiki_wrapper_adamn11.errors import NoDataException
 
 
 class TestWikiWrapper:
@@ -54,7 +54,6 @@ class TestWikiWrapper:
     def test_get_view_count_of_article_missing_granularity(self):
         with pytest.raises(Exception) as e_info:
             self.instance.get_view_count_of_article(self.article_name, self.granularity_missing, self.year, self.month)
-        print(e_info.value)
         assert str(e_info.value) == "Granularity input is incorrect. Week or Month value are only accepted."
 
     def test_get_view_count_of_article_invalid_granularity(self):
@@ -74,19 +73,19 @@ class TestWikiWrapper:
         invalid_year = -1000
         with pytest.raises(ValueError) as e_info:
             self.instance.get_view_count_of_article(self.article_name, self.granularity_week, invalid_year, self.month, self.day)
-        assert str(e_info.value) == f"year {invalid_year} is out of range"
+        assert str(e_info.value) == f"Invalid dates. Please check that the dates are within the bounds."
 
         # Test invalid month
         invalid_month = 14
         with pytest.raises(ValueError) as e_info:
             self.instance.get_view_count_of_article(self.article_name, self.granularity_week, self.year, invalid_month, self.day)
-        assert str(e_info.value) == f"month must be in 1..12"
+        assert str(e_info.value) == f"Invalid dates. Please check that the dates are within the bounds."
 
         # Test invalid day
         invalid_day = 100
         with pytest.raises(ValueError) as e_info:
             self.instance.get_view_count_of_article(self.article_name, self.granularity_week, self.year, self.month, invalid_day)
-        assert str(e_info.value) == f"day is out of range for month"
+        assert str(e_info.value) == f"Invalid dates. Please check that the dates are within the bounds."
 
     def test_get_article_date_with_most_views(self):
         result = self.instance.get_article_date_with_most_views(self.article_name)

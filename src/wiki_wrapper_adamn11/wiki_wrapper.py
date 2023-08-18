@@ -1,10 +1,6 @@
-import sys
-import os
-# Add the project root to the system path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import requests
 from datetime import datetime, timedelta
-from src.errors import NoDataException, ThrottlingException
+from wiki_wrapper_adamn11.errors import NoDataException, ThrottlingException
 
 
 class WikiWrapper:
@@ -44,8 +40,8 @@ class WikiWrapper:
         article = self.__get_valid_article_name(article_name)
 
         url = self.per_article_url.format(article=article,
-                                          start_date=start,
-                                          end_date=end)
+                                        start_date=start,
+                                        end_date=end)
         data = self.__get_api_results(url)
 
         total_view_count = 0
@@ -110,10 +106,14 @@ class WikiWrapper:
             raise ThrottlingException("Client has made too many requests")
 
     def __validate_dates(self, year: int, month: int, day: int = 1):
+        if type(year) != int or type(month) != int or type(day) != int:
+            raise TypeError("Year, month, and day must be an integer type")
+
         try:
+            # Will throw an error if month or day is out of bounds
             datetime(year=year, month=month, day=day)
         except ValueError:
-            return ValueError
+            raise ValueError("Invalid dates. Please check that the dates are within the bounds.")
 
     def __get_week_dates(self, day: int, month: int, year: int):
         date_object = datetime(year, month, day)
