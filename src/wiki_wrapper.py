@@ -20,6 +20,7 @@ import requests
 from datetime import datetime, timedelta
 from src.errors import NoDataException, ThrottlingException
 
+# TODO: comb through project and rename some variables
 
 class WikiWrapper:
     def __init__(self):
@@ -27,50 +28,23 @@ class WikiWrapper:
         self.per_article_url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/en.wikipedia/all-access/user/{article}/daily/{start_date}/{end_date}"
         self.top_url = "https://wikimedia.org/api/rest_v1/metrics/pageviews/top/en.wikisource/all-access/{year}/{month:02d}/{day}"
 
-    def get_list_of_most_viewed_articles_week(self, year: int, month: int, day: int=1, limit: int=10):
-        self.__validate_dates(year, month, day)
-        start_date = datetime(year, month, day)
+    def get_article_date_with_most_views(self, article_name: str) -> datetime:
+        # The Wikimedia pageviews API has backfilled data to July 2015
+        start_date = "2015070100"
+        end_date = datetime.today().strftime("%Y%m%d00")
+        article = self.__get_valid_article_name(article_name)
 
-        most_viewed_week = {}
-        for _ in range(7):
-            # TODO: replace day=date.day with something like 'day='{:02d}'.format(date.day)'
-            url = self.top_url.format(year=date.year,
-                                      month=date.month,
-                                      day=date.day)
-            request = self.__get_api_results(url)
-            most_viewed_articles = request[0].get("articles")
+        url = self.per_article_url.format(article=article,
+                                          start_date=start_date,
+                                          end_date=end_date)
+        data = self.__get_api_results(url)
+        max_view = max(data, key=lambda views: views.get('views'))
 
-            for article in most_viewed_articles:
-                article_name = article.get("article")
-                views = article.get("views")
+        # Formatting timestamp returned from pageview API
+        max_view_date = max_view.get("timestamp")
+        formatted_date = datetime.strptime(max_view_date, "%Y%m%d%H")
 
-                if article_name in most_viewed_week:
-                    most_viewed_week[article_name] += views
-                else:
-                    most_viewed_week[article_name] = views
-
-            date = date + timedelta(days=1)
-
-        # TODO: check limit
-        # TODO: need to combine duplicate results into one entry then sort
-        sorted_items = dict(sorted(most_viewed_week.items(), key=lambda item: item[1], reverse=True))
-        return sorted_items
-
-    def get_list_of_most_viewed_articles_month(self, year: int, month: int, limit: int=10):
-        self.__validate_dates(year, month)
-
-        url = self.top_url.format(year=year,
-                                  month=month,
-                                  day='all-days')
-        request = self.__get_api_results(url)
-        most_viewed_month = request[0].get("articles")
-
-        # limit is to cover responses that are less than the specified limit, which
-        # could go out of bounds and throw an error
-        limit = limit if limit < len(most_viewed_month) else len(most_viewed_month)
-        top_articles = [most_viewed_month[i].get("article") for i in range(limit)]
-
-        return top_articles
+        return formatted_date
 
     def get_view_count_of_article(self, article_name: str, granularity: str, year: int, month: int, day: int=1) -> int:
         self.__validate_dates(year, month, day)
@@ -95,23 +69,50 @@ class WikiWrapper:
 
         return total_view_count
 
-    def get_article_date_with_most_views(self, article_name: str) -> datetime:
-        # The Wikimedia pageviews API has backfilled data to July 2015
-        start_date = "2015070100"
-        end_date = datetime.today().strftime("%Y%m%d00")
-        article = self.__get_valid_article_name(article_name)
+    def get_list_of_most_viewed_articles_week(self, year: int, month: int, day: int=1, limit: int=10):
+        self.__validate_dates(year, month, day)
+        date = datetime(year, month, day)
 
-        url = self.per_article_url.format(article=article,
-                                          start_date=start_date,
-                                          end_date=end_date)
-        data = self.__get_api_results(url)
-        max_view = max(data, key=lambda views: views.get('views'))
+        most_viewed_week = {}
+        for _ in range(7):
+            url = self.top_url.format(year=date.year,
+                                      month=date.month,
+                                      day='{:02d}'.format(date.day))
+            request = self.__get_api_results(url)
+            most_viewed_articles = request[0].get("articles")
 
-        # Formatting timestamp returned from pageview API
-        max_view_date = max_view.get("timestamp")
-        formatted_date = datetime.strptime(max_view_date, "%Y%m%d%H")
+            for article in most_viewed_articles:
+                article_name = article.get("article")
+                views = article.get("views")
 
-        return formatted_date
+                if article_name in most_viewed_week:
+                    most_viewed_week[article_name] += views
+                else:
+                    most_viewed_week[article_name] = views
+
+            date = date + timedelta(days=1)
+
+        sorted_by_views = sorted(most_viewed_week.items(), key=lambda item: item[1], reverse=True)
+        # This is to ensure that the limit does not exceed the length of response
+        limit = limit if limit < len(sorted_by_views) else len(sorted_by_views)
+        top_articles_week = [sorted_by_views[i][0] for i in range(limit)]
+
+        return top_articles_week
+
+    def get_list_of_most_viewed_articles_month(self, year: int, month: int, limit: int=10):
+        self.__validate_dates(year, month)
+
+        url = self.top_url.format(year=year,
+                                  month=month,
+                                  day='all-days')
+        request = self.__get_api_results(url)
+        most_viewed_month = request[0].get("articles")
+
+        # This is to ensure that the limit does not exceed the length of response
+        limit = limit if limit < len(most_viewed_month) else len(most_viewed_month)
+        top_articles_month = [most_viewed_month[i].get("article") for i in range(limit)]
+
+        return top_articles_month
 
     def __get_api_results(self, api_url: str):
         request = requests.get(api_url, headers=self.user_agent_headers)
@@ -154,4 +155,4 @@ class WikiWrapper:
 
 # driver code (remove in final code)
 ww = WikiWrapper()
-print(ww.get_list_of_most_viewed_articles_month(2021, 9))
+print(ww.get_list_of_most_viewed_articles_month(2022, 10, 5))

@@ -16,16 +16,17 @@ class TestWikiWrapper:
     granularity_month = "month"
     granularity_missing = ""
     granularity_invalid = "invalid"
-    year = 2016
+    year = 2018
     month = 10
     day = 10
 
     def test_get_list_of_most_viewed_articles_month_successful(self):
         result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month)
-        assert result == ['Main_Page', 'Special:Search', 'Special:CreateAccount', 'Special:Book', 'Dictionary_of_spoken_Spanish', 'The_Grammar_of_English_Grammars/Part_II', 'Moral_letters_to_Lucilius', 'Zodiac_Killer_letters', 'Lorem_ipsum', 'The_Grammar_of_English_Grammars/Part_III']
+        assert result == ['Special:Search', 'Main_Page', 'Special:CreateAccount', '1911_Encyclopædia_Britannica/Bidpai,_Fables_of', 'National_Pledge_(India)', 'special:search', 'Atlas_of_the_World_Battle_Fronts_in_Semimonthly_Phases_to_August_15_1945', 'Special:ElectronPdf', 'Zodiac_Killer_letters', 'The_Rig_Veda']
 
     def test_get_list_of_most_viewed_articles_week_successful(self):
-        ...
+        result = self.instance.get_list_of_most_viewed_articles_week(self.year, self.month, self.day)
+        assert result == ['Special:Search', 'Main_Page', '1911_Encyclopædia_Britannica/Bidpai,_Fables_of', 'The_Rig_Veda', 'special:search', 'Special:CreateAccount', 'National_Pledge_(India)', 'Atlas_of_the_World_Battle_Fronts_in_Semimonthly_Phases_to_August_15_1945', 'Tale_of_Two_Brothers', 'Special:RecentChanges']
 
     def test_get_list_of_most_viewed_articles_limit(self):
         result = self.instance.get_list_of_most_viewed_articles_month(self.year, self.month, 10)
@@ -39,11 +40,11 @@ class TestWikiWrapper:
 
     def test_get_view_count_of_article_for_week_successful(self):
         result = self.instance.get_view_count_of_article(self.article_name, self.granularity_week, self.year, self.month, self.day)
-        assert result == 148013
+        assert result == 125837
 
     def test_get_view_count_of_article_for_month_successful(self):
         result = self.instance.get_view_count_of_article(self.article_name, self.granularity_month, self.year, self.month)
-        assert result == 616742
+        assert result == 571772
 
     def test_get_view_count_of_article_invalid_article_name(self):
         with pytest.raises(NoDataException) as e_info:
