@@ -8,6 +8,7 @@
 5. [Status Codes](#status-codes)
 
 ## Get Article Date With Most Views
+By provoding an article name, this endpoint will return a date when that article got the most views
 
 ### Parameters
 - `article_name` (string, required): The wiki page/subject
@@ -28,6 +29,7 @@ print(wiki.get_article_date_with_most_views("Albert Einstein"))
 ```
 
 ## Get View Count of Article
+By providing an article name as well as a date, this endpoint will return the view count of that article for the speicified date
 
 ### Parameters
 - `article_name` (string, required): The wiki page/subject
@@ -53,6 +55,7 @@ print(wiki.get_view_count_of_article("Albert Einstein", "month", 2022, 10))
 ```
 
 ## Get List of Most Viewed Articles for a Week
+This endpoint will return a list of the most viewed articles for the specified period
 
 ### Parameters
 - `year` (integer, required): The year the user is looking for
