@@ -15,6 +15,8 @@ You can install this package by using pip
 
 `pip install -i https://test.pypi.org/simple/ wiki-wrapper-adamn11`
 
+[Link to package in test pypi](https://test.pypi.org/project/wiki-wrapper-adamn11/)
+
 ## Troubleshooting
 If you run into an error that says `"module 'collections' has no attribute 'MutableMapping'"`, you have to update the requests package by running
 ```
