@@ -1,17 +1,3 @@
-'''
-Wikipedia's API Rules
-1. Limit client requests to NO MORE than 200 requests per second
-2. Set a unique User-Agent or Api-User-Agent (DONE)
-
-Project Assumptions
-- Project = en.wikipedia
-- Web app counts only
-- Using all-agents
-- Using coolbot for user-agent
-
-Notes:
-- Article name is case sensitive. Barack Obama, Barack obama, barack obama will all return different results
-'''
 import sys
 import os
 # Add the project root to the system path
@@ -20,7 +6,6 @@ import requests
 from datetime import datetime, timedelta
 from src.errors import NoDataException, ThrottlingException
 
-# TODO: comb through project and rename some variables
 
 class WikiWrapper:
     def __init__(self):
@@ -38,10 +23,10 @@ class WikiWrapper:
                                           start_date=start_date,
                                           end_date=end_date)
         data = self.__get_api_results(url)
-        max_view = max(data, key=lambda views: views.get('views'))
+        max_views = max(data, key=lambda views: views.get('views'))
 
         # Formatting timestamp returned from pageview API
-        max_view_date = max_view.get("timestamp")
+        max_view_date = max_views.get("timestamp")
         formatted_date = datetime.strptime(max_view_date, "%Y%m%d%H")
 
         return formatted_date
@@ -138,7 +123,7 @@ class WikiWrapper:
 
     def __get_month_dates(self, month: int, year: int):
         start_of_month = datetime(year, month, 1)
-        # I calculate the end of the month by getting the first day of next month and substracting 1 day
+        # End of the month is calculated by getting the first day of next month and substracting 1 day
         next_month = start_of_month.replace(day=28) +timedelta(days=4)
         end_of_month = next_month - timedelta(days=next_month.day)
         return [start_of_month.strftime("%Y%m%d00"), end_of_month.strftime("%Y%m%d00")]
@@ -151,8 +136,3 @@ class WikiWrapper:
         words = article.split()
         snake_case_string = '_'.join(words)
         return snake_case_string
-
-
-# driver code (remove in final code)
-ww = WikiWrapper()
-print(ww.get_list_of_most_viewed_articles_month(2022, 10, 5))
