@@ -13,7 +13,7 @@ This is a wrapper around Wikipedia's PageView API with the following endpoints:
 ## Installation
 You can install this package by using pip
 
-`pip install wiki-api-wrapper`
+`pip install -i https://test.pypi.org/simple/ wiki-wrapper-adamn11==1.0`
 
 ## Getting Started
 To start using this package, you need to import wiki-api-wrapper and then instantiate an instance of `WikiWrapper()`
