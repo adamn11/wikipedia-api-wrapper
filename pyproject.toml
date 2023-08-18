@@ -1,0 +1,21 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wiki_wrapper_adamn11"
+version = "1.0"
+authors = [
+  { name="Adam" },
+]
+description = "An API that wraps around Wikipedia's PageView API"
+readme = "README.md"
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/adamn11/wikipedia-api-wrapper/tree/main"
